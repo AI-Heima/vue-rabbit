@@ -1,6 +1,6 @@
 // 封装banner轮播图相关的业务代码
-import {ref, onMounted} from 'vue'
-import {getBannerAPI} from '@/apis/home'
+import { ref, onMounted } from 'vue'
+import { getBannerAPI } from '@/apis/home'
 
 export function useBanner() {
   // 获取banner
