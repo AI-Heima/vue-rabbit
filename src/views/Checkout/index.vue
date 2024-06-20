@@ -3,22 +3,30 @@ import { getCheckInfoAPI } from '@/apis/checkout'
 import { onMounted, ref } from 'vue'
 
 const checkInfo = ref({})  // 订单对象
-const defaultAddress = ref({})
+const curAddress = ref({})  // 地址对象
 const getCheckInfo = async () => {
   const res = await getCheckInfoAPI()
   checkInfo.value = res.result
   // 适配默认地址
   // 从地址列表中筛选出来 isDefault === 0 那一项
   const item = checkInfo.value.userAddresses.find(item => item.isDefault === 0)
-  defaultAddress.value = item
+  curAddress.value = item
 }
 
 onMounted(() => getCheckInfo())
 
-const curAddress = {}  // 地址对象
-
 // 控制弹框打开
 const showDialog = ref(false)
+
+// 切换地址
+const activeAddress = ref({})
+const switchAddress = (item) => {
+  activeAddress.value = item
+}
+const confirm = () => {
+  curAddress.value = activeAddress.value
+  showDialog.value = false
+}
 
 </script>
 
@@ -33,9 +41,9 @@ const showDialog = ref(false)
             <div class="text">
               <div class="none" v-if="!curAddress">您需要先添加收货地址才可提交订单。</div>
               <ul v-else>
-                <li><span>收<i />货<i />人：</span>{{ defaultAddress.receiver }}</li>
-                <li><span>联系方式：</span>{{ defaultAddress.contact }}</li>
-                <li><span>收货地址：</span>{{ defaultAddress.fullLocation }} {{ defaultAddress.address }}</li>
+                <li><span>收<i />货<i />人：</span>{{ curAddress.receiver }}</li>
+                <li><span>联系方式：</span>{{ curAddress.contact }}</li>
+                <li><span>收货地址：</span>{{ curAddress.fullLocation }} {{ curAddress.address }}</li>
               </ul>
             </div>
             <div class="action">
@@ -122,7 +130,7 @@ const showDialog = ref(false)
   <!-- 切换地址 -->
   <el-dialog v-model="showDialog" title="切换收货地址" width="30%" center>
     <div class="addressWrapper">
-      <div class="text item" v-for="item in checkInfo.userAddresses"  :key="item.id">
+      <div class="text item" :class="{ active: activeAddress.id === item.id }" @click="switchAddress(item)" v-for="item in checkInfo.userAddresses"  :key="item.id">
         <ul>
         <li><span>收<i />货<i />人：</span>{{ item.receiver }} </li>
         <li><span>联系方式：</span>{{ item.contact }}</li>
@@ -133,7 +141,7 @@ const showDialog = ref(false)
     <template #footer>
       <span class="dialog-footer">
         <el-button>取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="confirm">确定</el-button>
       </span>
     </template>
   </el-dialog>
