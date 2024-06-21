@@ -11,3 +11,13 @@ export const loginAPI = ({ account, password }) => {
     }
   })
 }
+
+// 封装猜你喜欢接口
+export const getLinkListAPI = ({ limit = 4 }) => {
+  return request({
+    url: '/goods/relevant',
+    params: {
+      limit
+    }
+  })
+}
